@@ -30,7 +30,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     class GameThread extends Thread {
-        private static final int FRAME_DELAY = 40;
+    	//Disminucion del frame delay
+        private static final int FRAME_DELAY = 30;
 
         private static final int STATE_RUNNING = 1;
         private static final int STATE_PAUSE = 2;
@@ -151,9 +152,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     byte[] levels = new byte[size];
                     is.read(levels);
                     is.close();
-                    SharedPreferences sp = mContext.getSharedPreferences(
-                            FrozenBubble.PREFS_NAME, Context.MODE_PRIVATE);
-                    int startingLevel = sp.getInt("level", 0);
+                    //Cambio de disposicion de la linea
+                    SharedPreferences sp = mContext.getSharedPreferences(FrozenBubble.PREFS_NAME, Context.MODE_PRIVATE);
+                    //Aumento del nivel base por el que empieza de 0 a 1.
+                    int startingLevel = sp.getInt("level", 1);
                     levelManager = new LevelManager(levels, startingLevel);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
