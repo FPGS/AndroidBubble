@@ -46,7 +46,7 @@ public class FrozenBubble extends Activity {
         return false;
     }
 
-    private void setFullscreen() {
+    private static void setFullscreen(GameView mGameView) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -72,7 +72,7 @@ public class FrozenBubble extends Activity {
             mGameThread.restoreState(savedInstanceState);
         }
         mGameView.requestFocus();
-        setFullscreen();
+        setFullscreen(mGameView);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class FrozenBubble extends Activity {
                 mGameThread = mGameView.getThread();
                 mGameThread.newGame();
                 mGameView.requestFocus();
-                setFullscreen();
+                setFullscreen(mGameView);
             }
         }
     }
