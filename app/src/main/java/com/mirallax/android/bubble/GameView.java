@@ -114,22 +114,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             backgroundOrig =
                     BitmapFactory.decodeResource(res, R.drawable.background, options);
             bubblesOrig = new Bitmap[8];
-            bubblesOrig[0] = BitmapFactory.decodeResource(res, R.drawable.bubble_1,
-                    options);
-            bubblesOrig[1] = BitmapFactory.decodeResource(res, R.drawable.bubble_2,
-                    options);
-            bubblesOrig[2] = BitmapFactory.decodeResource(res, R.drawable.bubble_3,
-                    options);
-            bubblesOrig[3] = BitmapFactory.decodeResource(res, R.drawable.bubble_4,
-                    options);
-            bubblesOrig[4] = BitmapFactory.decodeResource(res, R.drawable.bubble_5,
-                    options);
-            bubblesOrig[5] = BitmapFactory.decodeResource(res, R.drawable.bubble_6,
-                    options);
-            bubblesOrig[6] = BitmapFactory.decodeResource(res, R.drawable.bubble_7,
-                    options);
-            bubblesOrig[7] = BitmapFactory.decodeResource(res, R.drawable.bubble_8,
-                    options);
+            for (int i = 0; i < 8; i++){
+                String mDrawableName = "bubble_"+(i+1);
+                int resID = getResources().getIdentifier(mDrawableName , "drawable", getContext().getPackageName());
+                bubblesOrig[i] = BitmapFactory.decodeResource(res,resID,
+                        options);
+            }
             hurryOrig = BitmapFactory.decodeResource(res, R.drawable.hurry, options);
             compressorHeadOrig =
                     BitmapFactory.decodeResource(res, R.drawable.compressor, options);
