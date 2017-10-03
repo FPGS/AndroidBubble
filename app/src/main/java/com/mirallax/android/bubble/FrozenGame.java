@@ -19,58 +19,53 @@ import java.util.Vector;
 import java.util.Random;
 
 public class FrozenGame extends GameScreen {
-    public final static int HORIZONTAL_MOVE = 0;
-    public final static int FIRE = 1;
+    private final static int HORIZONTAL_MOVE = 0;
+    private final static int FIRE = 1;
 
-    public final static int KEY_UP = 38;
-    public final static int KEY_LEFT = 37;
-    public final static int KEY_RIGHT = 39;
+    private final static int KEY_UP = 38;
+    private final static int KEY_LEFT = 37;
+    private final static int KEY_RIGHT = 39;
 
-    boolean levelCompleted = false;
+    private boolean levelCompleted = false;
 
-    BmpWrap background;
-    ArrayList<BmpWrap> bubbles;
-    Random random;
+    private ArrayList<BmpWrap> bubbles;
+    private Random random;
 
-    LaunchBubbleSprite launchBubble;
-    double launchBubblePosition;
+    private LaunchBubbleSprite launchBubble;
+    private double launchBubblePosition;
 
-    Compressor compressor;
+    private Compressor compressor;
 
-    ImageSprite nextBubble;
-    int currentColor, nextColor;
+    private ImageSprite nextBubble;
+    private int currentColor, nextColor;
 
-    BubbleSprite movingBubble;
-    BubbleManager bubbleManager;
-    LevelManager levelManager;
+    private BubbleSprite movingBubble;
+    private BubbleManager bubbleManager;
+    private LevelManager levelManager;
 
-    Vector jumping;
-    Vector falling;
+    private Vector jumping;
+    private Vector falling;
 
-    BubbleSprite[][] bubblePlay;
+    private BubbleSprite[][] bubblePlay;
 
-    int fixedBubbles;
-    double moveDown;
+    private int fixedBubbles;
+    private double moveDown;
 
-    int nbBubbles;
+    private int nbBubbles;
 
-    ImageSprite hurrySprite;
-    int hurryTime;
+    private ImageSprite hurrySprite;
+    private int hurryTime;
 
-    boolean readyToFire;
-    boolean endOfGame;
+    private boolean readyToFire;
+    private boolean endOfGame;
 
-    Drawable launcher;
-
-    public FrozenGame(BmpWrap background_arg,
-                      ArrayList<BmpWrap> bubbles,
-                      BmpWrap hurry_arg,
-                      BmpWrap compressorHead_arg,
-                      Drawable launcher_arg,
-                      LevelManager levelManager_arg) {
+    FrozenGame(BmpWrap background_arg,
+               ArrayList<BmpWrap> bubbles,
+               BmpWrap hurry_arg,
+               BmpWrap compressorHead_arg,
+               Drawable launcher_arg,
+               LevelManager levelManager_arg) {
         random = new Random(System.currentTimeMillis());
-        this.launcher = launcher_arg;
-        this.background = background_arg;
         this.bubbles = bubbles;
         this.levelManager = levelManager_arg;
 
@@ -117,7 +112,7 @@ public class FrozenGame extends GameScreen {
 
         launchBubble = new LaunchBubbleSprite(currentColor,
                 (int) launchBubblePosition,
-                launcher, bubbles);
+                launcher_arg, bubbles);
 
         this.spriteToBack(launchBubble);
 
@@ -125,7 +120,7 @@ public class FrozenGame extends GameScreen {
     }
 
     public void saveState(Bundle map) {
-        ArrayList savedSprites = new ArrayList();
+        ArrayList<Sprite> savedSprites = new ArrayList<>();
         saveSprites(map, savedSprites);
         for (int i = 0; i < jumping.size(); i++) {
             ((Sprite) jumping.elementAt(i)).saveState(map, savedSprites);
@@ -177,7 +172,7 @@ public class FrozenGame extends GameScreen {
         map.putInt("numSavedSprites", savedSprites.size());
 
         for (int i = 0; i < savedSprites.size(); i++) {
-            ((Sprite) savedSprites.get(i)).clearSavedId();
+            (savedSprites.get(i)).clearSavedId();
         }
     }
 
@@ -214,12 +209,11 @@ public class FrozenGame extends GameScreen {
         }
     }
 
-    public void restoreState(Bundle map, Vector imageList) {
+    void restoreState(Bundle map, Vector imageList) {
         Vector savedSprites = new Vector();
         int numSavedSprites = map.getInt("numSavedSprites");
-        for (int i = 0; i < numSavedSprites; i++) {
+        for (int i = 0; i < numSavedSprites; i++)
             savedSprites.addElement(restoreSprite(map, imageList, i));
-        }
 
         restoreSprites(map, savedSprites);
         jumping = new Vector();

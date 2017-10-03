@@ -32,12 +32,12 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
     class GameThread extends Thread {
         private static final int FRAME_DELAY = 40;
 
-        public static final int STATE_RUNNING = 1;
-        public static final int STATE_PAUSE = 2;
+        private static final int STATE_RUNNING = 1;
+        private static final int STATE_PAUSE = 2;
 
-        public static final int GAMEFIELD_WIDTH = 320;
-        public static final int GAMEFIELD_HEIGHT = 480;
-        public static final int EXTENDED_GAMEFIELD_WIDTH = 640;
+        private static final int GAMEFIELD_WIDTH = 320;
+        private static final int GAMEFIELD_HEIGHT = 480;
+        private static final int EXTENDED_GAMEFIELD_WIDTH = 640;
 
         private static final double TRACKBALL_COEFFICIENT = 5;
         private static final double TOUCH_COEFFICIENT = 0.2;
@@ -60,7 +60,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private double touchLastX;
         private boolean touchFire = false;
 
-        private SurfaceHolder surfaceHolder;
+        private final SurfaceHolder surfaceHolder;
         private boolean surfaceOK = false;
 
         private double displayScale;
@@ -82,13 +82,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Drawable launcher;
         private LevelManager levelManager;
 
-        Vector imageList;
+        Vector<BmpWrap> imageList;
 
-        public int getCurrentLevelIndex() {
+        int getCurrentLevelIndex() {
             synchronized (surfaceHolder) {
                 return levelManager.getLevelIndex();
             }
         }
+
 
         private BmpWrap NewBmpWrap() {
             int new_img_id = imageList.size();
@@ -97,8 +98,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             return new_img;
         }
 
-        public GameThread(SurfaceHolder surfaceHolder, byte[] customLevels,
-                          int startingLevel) {
+        private GameThread(SurfaceHolder surfaceHolder, byte[] customLevels) {
             this.surfaceHolder = surfaceHolder;
             Resources res = mContext.getResources();
             setState(STATE_PAUSE);
@@ -133,7 +133,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             hurryOrig = BitmapFactory.decodeResource(res, R.drawable.hurry, options);
             compressorHeadOrig =
                     BitmapFactory.decodeResource(res, R.drawable.compressor, options);
-            imageList = new Vector();
+            imageList = new Vector<>();
 
             background = NewBmpWrap();
             bubbles = new ArrayList<>(8);
@@ -155,7 +155,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     is.close();
                     SharedPreferences sp = mContext.getSharedPreferences(
                             FrozenBubble.PREFS_NAME, Context.MODE_PRIVATE);
-                    startingLevel = sp.getInt("level", 0);
+                    int startingLevel = sp.getInt("level", 0);
                     levelManager = new LevelManager(levels, startingLevel);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -192,7 +192,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             imagesReady = true;
         }
 
-        public void pause() {
+        void pause() {
             synchronized (surfaceHolder) {
                 if (mode == STATE_RUNNING) {
                     setState(STATE_PAUSE);
@@ -200,7 +200,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        public void newGame() {
+        void newGame() {
             synchronized (surfaceHolder) {
                 levelManager.goToFirstLevel();
                 frozenGame = new FrozenGame(background, bubbles,
@@ -215,11 +215,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             while (run) {
                 long now = System.currentTimeMillis();
                 long delay = FRAME_DELAY + lastTime - now;
-                if (delay > 0) {
-                    try {
-                        sleep(delay);
-                    } catch (InterruptedException e) {
-                    }
+                if (delay > 0) try {
+                    sleep(delay);
+                } catch (InterruptedException e) {
                 }
                 lastTime = now;
                 Canvas c = null;
@@ -255,7 +253,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             return map;
         }
 
-        public synchronized void restoreState(Bundle map) {
+        synchronized void restoreState(Bundle map) {
             synchronized (surfaceHolder) {
                 setState(STATE_PAUSE);
                 frozenGame.restoreState(map, imageList);
@@ -263,29 +261,29 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        public void setRunning(boolean b) {
+        private void setRunning(boolean b) {
             run = b;
         }
 
-        public void setState(int mode) {
+        private void setState(int mode) {
             synchronized (surfaceHolder) {
                 this.mode = mode;
             }
         }
 
-        public void setSurfaceOK(boolean ok) {
+        private void setSurfaceOK(boolean ok) {
             synchronized (surfaceHolder) {
                 surfaceOK = ok;
             }
         }
 
-        public boolean surfaceOK() {
+        private boolean surfaceOK() {
             synchronized (surfaceHolder) {
                 return surfaceOK;
             }
         }
 
-        public void setSurfaceSize(int width, int height) {
+        private void setSurfaceSize(int width, int height) {
             synchronized (surfaceHolder) {
                 if (width / height >= GAMEFIELD_WIDTH / GAMEFIELD_HEIGHT) {
                     displayScale = 1.0 * height / GAMEFIELD_HEIGHT;
@@ -435,7 +433,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             touchDX = 0;
         }
 
-        public void cleanUp() {
+        private void cleanUp() {
             synchronized (surfaceHolder) {
                 imagesReady = false;
                 boolean imagesScaled = (backgroundOrig == background.bmp);
@@ -470,6 +468,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 frozenGame = null;
             }
         }
+
+
     }
 
     private Context mContext;
@@ -482,7 +482,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
 
-        thread = new GameThread(holder, null, 0);
+        thread = new GameThread(holder, null);
         setFocusable(true);
         setFocusableInTouchMode(true);
 
@@ -497,7 +497,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
 
-        thread = new GameThread(holder, levels, startingLevel);
+        thread = new GameThread(holder, levels);
         setFocusable(true);
         setFocusableInTouchMode(true);
 
