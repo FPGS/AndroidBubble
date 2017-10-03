@@ -19,57 +19,12 @@ import java.util.Vector;
 import java.util.Random;
 
 public class FrozenGame extends GameScreen {
-    private final static int HORIZONTAL_MOVE = 0;
-    private final static int FIRE = 1;
+    public final static int HORIZONTAL_MOVE = 0;
+    public final static int FIRE = 1;
 
-    private final static int KEY_UP = 38;
-    private final static int KEY_LEFT = 37;
-    private final static int KEY_RIGHT = 39;
-
-     public String getHorizontal_Move()
-        {
-                return HORIZONTAL_MOVE;
-        }
-        public void setHorizontal_Move(int HORIZONTAL_MOVE)
-        {
-                this.HORIZONTAL_MOVE = HORIZONTAL_MOVE;
-        }
-
-         public String getFire()
-        {
-                return FIRE;
-        }
-        public void setNombre(int FIRE)
-        {
-                this.FIRE = FIRE;
-        }
-
-         public String getKey_UP()
-        {
-                return KEY_UP;
-        }
-        public void setKey_UP(int KEY_UP)
-        {
-                this.KEY_UP = KEY_UP;
-        }
-
-         public String getKey_LEFT()
-        {
-                return KEY_LEFT;
-        }
-        public void setKey_LEFT(int KEY_LEFT)
-        {
-                this.KEY_LEFT = KEY_LEFT;
-        }
-
-         public String getKey_RIGHT()
-        {
-                return KEY_RIGHT;
-        }
-        public void setKey_RIGHT(int KEY_RIGHT)
-        {
-                this.KEY_RIGHT = KEY_RIGHT;
-        }
+    public final static int KEY_UP = 38;
+    public final static int KEY_LEFT = 37;
+    public final static int KEY_RIGHT = 39;
 
     boolean levelCompleted = false;
 
