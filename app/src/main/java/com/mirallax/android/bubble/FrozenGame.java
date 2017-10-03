@@ -55,6 +55,9 @@ public class FrozenGame extends GameScreen {
     int nbBubbles;
 
     ImageSprite hurrySprite;
+    ImageSprite overSprite;
+    ImageSprite winSprite;
+
     int hurryTime;
 
     boolean readyToFire;
@@ -65,6 +68,8 @@ public class FrozenGame extends GameScreen {
     public FrozenGame(BmpWrap background_arg,
                       ArrayList<BmpWrap> bubbles,
                       BmpWrap hurry_arg,
+                      BmpWrap over_arg,
+                      BmpWrap win_arg,
                       BmpWrap compressorHead_arg,
                       Drawable launcher_arg,
                       LevelManager levelManager_arg) {
@@ -80,6 +85,10 @@ public class FrozenGame extends GameScreen {
 
         hurrySprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
                 hurry_arg);
+        overSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                over_arg);
+        winSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                win_arg);
 
         jumping = new Vector();
         falling = new Vector();
@@ -170,6 +179,10 @@ public class FrozenGame extends GameScreen {
         map.putInt("nbBubbles", nbBubbles);
         hurrySprite.saveState(map, savedSprites);
         map.putInt("hurryId", hurrySprite.getSavedId());
+        overSprite.saveState(map, savedSprites);
+        winSprite.saveState(map, savedSprites);
+        map.putInt("overId", overSprite.getSavedId());
+        map.putInt("winId", winSprite.getSavedId());
         map.putInt("hurryTime", hurryTime);
         map.putBoolean("readyToFire", readyToFire);
         map.putBoolean("endOfGame", endOfGame);
@@ -265,6 +278,10 @@ public class FrozenGame extends GameScreen {
         nbBubbles = map.getInt("nbBubbles");
         int hurryId = map.getInt("hurryId");
         hurrySprite = (ImageSprite) savedSprites.elementAt(hurryId);
+        int overId = map.getInt("overId");
+        overSprite = (ImageSprite) savedSprites.elementAt(overId);
+        int winId = map.getInt("winId");
+        winSprite = (ImageSprite) savedSprites.elementAt(winId);
         hurryTime = map.getInt("hurryTime");
         readyToFire = map.getBoolean("readyToFire");
         endOfGame = map.getBoolean("endOfGame");
@@ -431,6 +448,14 @@ public class FrozenGame extends GameScreen {
             }
         }
 
+        if(endOfGame && !levelCompleted){
+            finDelJuego();
+        }
+
+        if(endOfGame && levelCompleted){
+            juegoGanado();
+        }
+
         if (movingBubble == null && !endOfGame) {
             hurryTime++;
             if (hurryTime == 2) {
@@ -454,6 +479,24 @@ public class FrozenGame extends GameScreen {
         }
 
         return false;
+    }
+
+    public void finDelJuego(){
+        if (endOfGame) {
+            addSprite(overSprite);
+        }
+        else{
+            removeSprite(overSprite);
+        }
+    }
+
+    public void juegoGanado(){
+        if (endOfGame) {
+            addSprite(winSprite);
+        }
+        else{
+            removeSprite(winSprite);
+        }
     }
 
     public void paint(Canvas c, double scale, int dx, int dy) {
