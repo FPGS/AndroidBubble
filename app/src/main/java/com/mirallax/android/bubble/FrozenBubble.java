@@ -15,7 +15,7 @@ import com.mirallax.android.R;
 public class FrozenBubble extends Activity {
 
 
-    public final static int MENU_NEW_GAME = 9;
+    private final static int MENU_NEW_GAME = 9;
     public final static String PREFS_NAME = "frozenbubble";
 
     private GameView.GameThread mGameThread;
@@ -85,13 +85,8 @@ public class FrozenBubble extends Activity {
                     Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
             editor.putInt("level", mGameThread.getCurrentLevelIndex());
-            editor.commit();
+            editor.apply();
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     @Override
