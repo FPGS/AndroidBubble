@@ -54,14 +54,24 @@ public class FrozenGame extends GameScreen {
 
     private int nbBubbles;
 
+
+    ImageSprite hurrySprite;
+    ImageSprite overSprite;
+    ImageSprite winSprite;
+
+    int hurryTime;
+
     private ImageSprite runForrestRun;
     private int limitTime;
+
 
     private boolean readyToFire;
     private boolean gameOver;
 
     public FrozenGame(ArrayList<BmpWrap> bubbles,
                       BmpWrap hurry_arg,
+                      BmpWrap over_arg,
+                      BmpWrap win_arg,
                       BmpWrap compressorHead_arg,
                       Drawable launcher_arg,
                       LevelManager levelManager_arg) {
@@ -75,6 +85,10 @@ public class FrozenGame extends GameScreen {
 
         runForrestRun = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
                 hurry_arg);
+        overSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                over_arg);
+        winSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                win_arg);
 
         jumping = new Vector<>();
         falling = new Vector<>();
@@ -164,6 +178,15 @@ public class FrozenGame extends GameScreen {
         map.putInt("fixedBubbles", fixedBubbles);
         map.putDouble("mDown", mDown);
         map.putInt("nbBubbles", nbBubbles);
+
+        hurrySprite.saveState(map, savedSprites);
+        map.putInt("hurryId", hurrySprite.getSavedId());
+        overSprite.saveState(map, savedSprites);
+        winSprite.saveState(map, savedSprites);
+        map.putInt("overId", overSprite.getSavedId());
+        map.putInt("winId", winSprite.getSavedId());
+        map.putInt("hurryTime", hurryTime);
+
         runForrestRun.saveState(map, savedSprites);
         map.putInt("hurryId", runForrestRun.getSavedId());
         map.putInt("limitTime", limitTime);
@@ -260,8 +283,17 @@ public class FrozenGame extends GameScreen {
         mDown = map.getDouble("mDown");
         nbBubbles = map.getInt("nbBubbles");
         int hurryId = map.getInt("hurryId");
+
+        hurrySprite = (ImageSprite) savedSprites.elementAt(hurryId);
+        int overId = map.getInt("overId");
+        overSprite = (ImageSprite) savedSprites.elementAt(overId);
+        int winId = map.getInt("winId");
+        winSprite = (ImageSprite) savedSprites.elementAt(winId);
+        hurryTime = map.getInt("hurryTime");
+
         runForrestRun = (ImageSprite) savedSprites.elementAt(hurryId);
         limitTime = map.getInt("limitTime");
+
         readyToFire = map.getBoolean("readyToFire");
         gameOver = map.getBoolean("gameOver");
     }
@@ -427,10 +459,22 @@ public class FrozenGame extends GameScreen {
             }
         }
 
+
+        if(endOfGame && !levelCompleted){
+            finDelJuego();
+        }
+
+        if(endOfGame && levelCompleted){
+            juegoGanado();
+        }
+
+   
+
         if (movingBubble == null && !gameOver) {
             limitTime++;
             if (limitTime == 2) {
                 removeSprite(runForrestRun);
+
             }
             if (limitTime >= 240) {
                 if (limitTime % 40 == 10) {
@@ -450,6 +494,24 @@ public class FrozenGame extends GameScreen {
         }
 
         return false;
+    }
+
+    public void finDelJuego(){
+        if (endOfGame) {
+            addSprite(overSprite);
+        }
+        else{
+            removeSprite(overSprite);
+        }
+    }
+
+    public void juegoGanado(){
+        if (endOfGame) {
+            addSprite(winSprite);
+        }
+        else{
+            removeSprite(winSprite);
+        }
     }
 
     public void paint(Canvas c, double scale, int dx, int dy) {
