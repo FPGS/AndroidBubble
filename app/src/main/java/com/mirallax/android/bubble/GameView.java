@@ -162,7 +162,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
-            frozenGame = new FrozenGame(background, bubbles,
+            frozenGame = new FrozenGame(bubbles,
                     hurry, compressorHead,
                     launcher,
                     levelManager);
@@ -203,7 +203,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public void newGame() {
             synchronized (surfaceHolder) {
                 levelManager.goToFirstLevel();
-                frozenGame = new FrozenGame(background, bubbles,
+                frozenGame = new FrozenGame(bubbles,
                         hurry, compressorHead,
                         launcher,
                         levelManager);
@@ -421,7 +421,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (frozenGame.play(left || wasLeft, right || wasRight,
                     fire || up || wasFire || wasUp || touchFire,
                     trackballDX, touchDX)) {
-                frozenGame = new FrozenGame(background, bubbles,
+                frozenGame = new FrozenGame(bubbles,
                         hurry, compressorHead,
                         launcher,
                         levelManager);
