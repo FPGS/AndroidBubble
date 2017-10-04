@@ -1,27 +1,27 @@
 package com.mirallax.android.bubble;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 import android.graphics.Canvas;
 import android.os.Bundle;
 
 import com.mirallax.android.bubble.sprite.Sprite;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
 public abstract class GameScreen {
-    private Vector sprites;
+    private Vector <Sprite> sprites;
 
     public final void saveSprites(Bundle map, ArrayList savedSprites) {
         for (int i = 0; i < sprites.size(); i++) {
-            ((Sprite) sprites.elementAt(i)).saveState(map, savedSprites);
+            sprites.elementAt(i).saveState(map, savedSprites);
             map.putInt(String.format("game-%d", i),
-                    ((Sprite) sprites.elementAt(i)).getSavedId());
+                    sprites.elementAt(i).getSavedId());
         }
         map.putInt("numGameSprites", sprites.size());
     }
 
-    public final void restoreSprites(Bundle map, Vector savedSprites) {
-        sprites = new Vector();
+    public final void restoreSprites(Bundle map, Vector <Sprite> savedSprites) {
+        sprites = new Vector<>();
         int numSprites = map.getInt("numGameSprites");
         for (int i = 0; i < numSprites; i++) {
             int spriteIdx = map.getInt(String.format("game-%d", i));
@@ -30,7 +30,7 @@ public abstract class GameScreen {
     }
 
     public GameScreen() {
-        sprites = new Vector();
+        sprites = new Vector<>();
     }
 
     public final void addSprite(Sprite sprite) {
@@ -54,7 +54,7 @@ public abstract class GameScreen {
 
     public void paint(Canvas c, double scale, int dx, int dy) {
         for (int i = 0; i < sprites.size(); i++) {
-            ((Sprite) sprites.elementAt(i)).paint(c, scale, dx, dy);
+            sprites.elementAt(i).paint(c, scale, dx, dy);
         }
     }
 
