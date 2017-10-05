@@ -1,15 +1,14 @@
 package com.mirallax.android.bubble.sprite;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
 
-import com.mirallax.android.bubble.manager.BubbleManager;
 import com.mirallax.android.bubble.FrozenGame;
+import com.mirallax.android.bubble.manager.BubbleManager;
+
+import java.util.ArrayList;
 
 public class BubbleSprite extends Sprite {
     private static double FALL_SPEED = 1.;
@@ -31,27 +30,6 @@ public class BubbleSprite extends Sprite {
 
     private int fixedAnim;
 
-
-    public void saveState(Bundle map, ArrayList savedSprites) {
-        if (getSavedId() != -1) {
-            return;
-        }
-        super.saveState(map, savedSprites);
-        map.putInt(String.format("%d-color", getSavedId()), color);
-        map.putDouble(String.format("%d-moveX", getSavedId()), moveX);
-        map.putDouble(String.format("%d-moveY", getSavedId()), moveY);
-        map.putDouble(String.format("%d-realX", getSavedId()), realX);
-        map.putDouble(String.format("%d-realY", getSavedId()), realY);
-        map.putBoolean(String.format("%d-fixed", getSavedId()), fixed);
-        map.putBoolean(String.format("%d-released", getSavedId()), released);
-        map.putBoolean(String.format("%d-checkJump", getSavedId()), checkJump);
-        map.putBoolean(String.format("%d-checkFall", getSavedId()), checkFall);
-        map.putInt(String.format("%d-fixedAnim", getSavedId()), fixedAnim);
-    }
-
-    public int getTypeId() {
-        return TYPE_BUBBLE;
-    }
 
     public BubbleSprite(Rect area, int color, double moveX, double moveY,
                         double realX, double realY, boolean fixed,
@@ -112,8 +90,39 @@ public class BubbleSprite extends Sprite {
         bubbleManager.addBubble(bubbleFace);
     }
 
+    public void saveState(Bundle map, ArrayList savedSprites) {
+        if (getSavedId() != -1) {
+            return;
+        }
+        super.saveState(map, savedSprites);
+        String color = "%d-color";
+        map.putInt(String.format(color, getSavedId()), this.color);
+        String moveX = "%d-moveX";
+        map.putDouble(String.format(moveX, getSavedId()), this.moveX);
+        String moveY = "%d-moveY";
+        map.putDouble(String.format(moveY, getSavedId()), this.moveY);
+        String realX = "%d-realX";
+        map.putDouble(String.format(realX, getSavedId()), this.realX);
+        String realY = "%d-realY";
+        map.putDouble(String.format(realY, getSavedId()), this.realY);
+        String fixed = "%d-fixed";
+        map.putBoolean(String.format(fixed, getSavedId()), this.fixed);
+        String released = "%d-released";
+        map.putBoolean(String.format(released, getSavedId()), this.released);
+        String checkJump = "%d-checkJump";
+        map.putBoolean(String.format(checkJump, getSavedId()), this.checkJump);
+        String checkFall = "%d-checkFall";
+        map.putBoolean(String.format(checkFall, getSavedId()), this.checkFall);
+        String fixedAnim = "%d-fixedAnim";
+        map.putInt(String.format(fixedAnim, getSavedId()), this.fixedAnim);
+    }
+
+    public int getTypeId() {
+        return TYPE_BUBBLE;
+    }
+
     Point currentPosition() {
-        int posY = (int) Math.floor((realY - 28. - frozen.getMoveDown()) / 28.);
+        int posY = (int) Math.floor((realY - 28. - frozen.getmDown()) / 28.);
         int posX = (int) Math.floor((realX - 174.) / 32. + 0.5 * (posY % 2));
 
         if (posX > 7) {
@@ -171,9 +180,9 @@ public class BubbleSprite extends Sprite {
         Point currentPosition = currentPosition();
         ArrayList neighbors = getNeighbors(currentPosition);
 
-        if (checkCollision(neighbors) || realY < 44. + frozen.getMoveDown()) {
+        if (checkCollision(neighbors) || realY < 44. + frozen.getmDown()) {
             realX = 190. + currentPosition.x * 32 - (currentPosition.y % 2) * 16;
-            realY = 44. + currentPosition.y * 28 + frozen.getMoveDown();
+            realY = 44. + currentPosition.y * 28 + frozen.getmDown();
 
             fixed = true;
 
@@ -354,8 +363,8 @@ public class BubbleSprite extends Sprite {
 
     public void jump() {
         if (fixed) {
-            moveX = -6. + frozen.getRandom().nextDouble() * 12.;
-            moveY = -5. - frozen.getRandom().nextDouble() * 10.;
+            moveX = -6. + frozen.getRndm().nextDouble() * 12.;
+            moveY = -5. - frozen.getRndm().nextDouble() * 10.;
 
             fixed = false;
         }
@@ -373,7 +382,7 @@ public class BubbleSprite extends Sprite {
 
     public void fall() {
         if (fixed) {
-            moveY = frozen.getRandom().nextDouble() * 5.;
+            moveY = frozen.getRndm().nextDouble() * 5.;
         }
 
         fixed = false;
