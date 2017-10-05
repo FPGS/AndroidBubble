@@ -31,8 +31,10 @@ public class FrozenGame extends GameScreen {
     private final ArrayList<BmpWrap> bubbles;
     private final Random rndm;
 
+
     private LaunchBubbleSprite launchBubble;
     private double launchBubblePosition;
+
 
     private final Compressor compressor;
 
@@ -76,6 +78,7 @@ public class FrozenGame extends GameScreen {
                       Drawable launcher_arg,
                       LevelManager levelManager_arg) {
         rndm = new Random(System.currentTimeMillis());
+
         this.bubbles = bubbles;
         this.levelManager = levelManager_arg;
 
@@ -233,12 +236,12 @@ public class FrozenGame extends GameScreen {
         }
     }
 
+
     public void restoreState(Bundle map, Vector imageList) {
         Vector <Sprite> savedSprites = new Vector<>();
         int numSavedSprites = map.getInt("numSavedSprites");
-        for (int i = 0; i < numSavedSprites; i++) {
+        for (int i = 0; i < numSavedSprites; i++)
             savedSprites.addElement(restoreSprite(map, imageList, i));
-        }
 
         restoreSprites(map, savedSprites);
         jumping = new Vector<>();
