@@ -74,10 +74,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Bitmap backgroundOrig;
         private Bitmap[] bubblesOrig;
         private Bitmap hurryOrig;
+        private Bitmap overOrig;
+        private Bitmap winOrig;
         private Bitmap compressorHeadOrig;
         private BmpWrap background;
         private ArrayList<BmpWrap> bubbles;
         private BmpWrap hurry;
+        private BmpWrap over;
+        private BmpWrap win;
         private BmpWrap compressorHead;
         private Drawable launcher;
         private LevelManager levelManager;
@@ -114,23 +118,15 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             backgroundOrig =
                     BitmapFactory.decodeResource(res, R.drawable.background, options);
             bubblesOrig = new Bitmap[8];
-            bubblesOrig[0] = BitmapFactory.decodeResource(res, R.drawable.bubble_1,
-                    options);
-            bubblesOrig[1] = BitmapFactory.decodeResource(res, R.drawable.bubble_2,
-                    options);
-            bubblesOrig[2] = BitmapFactory.decodeResource(res, R.drawable.bubble_3,
-                    options);
-            bubblesOrig[3] = BitmapFactory.decodeResource(res, R.drawable.bubble_4,
-                    options);
-            bubblesOrig[4] = BitmapFactory.decodeResource(res, R.drawable.bubble_5,
-                    options);
-            bubblesOrig[5] = BitmapFactory.decodeResource(res, R.drawable.bubble_6,
-                    options);
-            bubblesOrig[6] = BitmapFactory.decodeResource(res, R.drawable.bubble_7,
-                    options);
-            bubblesOrig[7] = BitmapFactory.decodeResource(res, R.drawable.bubble_8,
-                    options);
+            for (int i = 0; i < 8; i++){
+                String mDrawableName = "bubble_"+(i+1);
+                int resID = getResources().getIdentifier(mDrawableName , "drawable", getContext().getPackageName());
+                bubblesOrig[i] = BitmapFactory.decodeResource(res,resID,
+                        options);
+            }
             hurryOrig = BitmapFactory.decodeResource(res, R.drawable.hurry, options);
+            overOrig = BitmapFactory.decodeResource(res, R.drawable.over, options);
+            winOrig = BitmapFactory.decodeResource(res, R.drawable.win, options);
             compressorHeadOrig =
                     BitmapFactory.decodeResource(res, R.drawable.compressor, options);
             imageList = new Vector<>();
@@ -141,6 +137,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 bubbles.add(NewBmpWrap());
             }
             hurry = NewBmpWrap();
+            over = NewBmpWrap();
+            win = NewBmpWrap();
             compressorHead = NewBmpWrap();
 
             launcher = res.getDrawable(R.drawable.launcher);
@@ -162,8 +160,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
+
             frozenGame = new FrozenGame(background, bubbles,
-                    hurry, compressorHead,
+                    hurry, over, win,  compressorHead,
+
                     launcher,
                     levelManager);
         }
@@ -188,6 +188,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 scaleFrom(bubbles.get(i), bubblesOrig[i]);
             }
             scaleFrom(hurry, hurryOrig);
+            scaleFrom(over, overOrig);
+            scaleFrom(win, winOrig);
             scaleFrom(compressorHead, compressorHeadOrig);
             imagesReady = true;
         }
@@ -203,8 +205,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         void newGame() {
             synchronized (surfaceHolder) {
                 levelManager.goToFirstLevel();
+
                 frozenGame = new FrozenGame(background, bubbles,
-                        hurry, compressorHead,
+                        hurry, over, win, compressorHead,
+
                         launcher,
                         levelManager);
             }
@@ -419,8 +423,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (frozenGame.play(left || wasLeft, right || wasRight,
                     fire || up || wasFire || wasUp || touchFire,
                     trackballDX, touchDX)) {
+
                 frozenGame = new FrozenGame(background, bubbles,
-                        hurry, compressorHead,
+                        hurry, over, win, compressorHead,
+
                         launcher,
                         levelManager);
             }
@@ -446,6 +452,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 bubblesOrig = null;
                 hurryOrig.recycle();
                 hurryOrig = null;
+                overOrig.recycle();
+                overOrig = null;
+                winOrig.recycle();
+                winOrig = null;
 
                 if (imagesScaled) {
                     background.bmp.recycle();
@@ -453,6 +463,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         bubbles.get(i).bmp.recycle();
                     }
                     hurry.bmp.recycle();
+                    over.bmp.recycle();
                     compressorHead.bmp.recycle();
                 }
                 background.bmp = null;
@@ -460,6 +471,10 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 bubbles = null;
                 hurry.bmp = null;
                 hurry = null;
+                over.bmp = null;
+                over = null;
+                win.bmp = null;
+                win = null;
                 compressorHead.bmp = null;
                 compressorHead = null;
 
