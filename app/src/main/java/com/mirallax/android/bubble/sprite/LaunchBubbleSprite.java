@@ -55,10 +55,11 @@ public class LaunchBubbleSprite extends Sprite {
         int yCenter = 406;
         c.rotate((float) (0.025 * 180 * (currentDirection - 20)),
                 (float) (xCenter * scale + dx), (float) (yCenter * scale + dy));
-        launcher.setBounds((int) ((xCenter - 50) * scale + dx),
-                (int) ((yCenter - 50) * scale + dy),
+        launcher.setBounds(
+                (int) ((xCenter - 50) * scale + dx),
+                (int) ((yCenter - 350) * scale + dy),
                 (int) ((xCenter + 50) * scale + dx),
-                (int) ((yCenter + 50) * scale + dy));
+                (int) ((yCenter + 55) * scale + dy));
         launcher.draw(c);
         c.restore();
     }
