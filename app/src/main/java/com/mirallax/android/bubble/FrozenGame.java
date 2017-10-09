@@ -463,11 +463,11 @@ public class FrozenGame extends GameScreen {
         }
 
 
-        if(endOfGame && !levelCompleted){
+        if(gameOver && !youWin){
             finDelJuego();
         }
 
-        if(endOfGame && levelCompleted){
+        if(gameOver && youWin){
             juegoGanado();
         }
 
@@ -500,7 +500,7 @@ public class FrozenGame extends GameScreen {
     }
 
     public void finDelJuego(){
-        if (endOfGame) {
+        if (gameOver) {
             addSprite(overSprite);
         }
         else{
@@ -509,7 +509,7 @@ public class FrozenGame extends GameScreen {
     }
 
     public void juegoGanado(){
-        if (endOfGame) {
+        if (gameOver) {
             addSprite(winSprite);
         }
         else{
