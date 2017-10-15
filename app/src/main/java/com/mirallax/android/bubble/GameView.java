@@ -30,7 +30,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     class GameThread extends Thread {
-        private static final int FrameDelay = 40;
+        private static final int FrameDelay = 30;
 
         public static final int StateRunning = 1;
         public static final int StatePause = 2;
