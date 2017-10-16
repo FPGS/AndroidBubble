@@ -26,96 +26,86 @@ public class FrozenGame extends GameScreen {
     private final static int KEY_LEFT = 37;
     private final static int KEY_RIGHT = 39;
 
-     public String getHorizontal_Move()
+
+     public String getHorizontalMove()
         {
                 return HORIZONTAL_MOVE;
-        }
-        public void setHorizontal_Move(int HORIZONTAL_MOVE)
-        {
-                this.HORIZONTAL_MOVE = HORIZONTAL_MOVE;
         }
 
          public String getFire()
         {
                 return FIRE;
         }
-        public void setNombre(int FIRE)
-        {
-                this.FIRE = FIRE;
-        }
 
-         public String getKey_UP()
+         public String getKeyUP()
         {
                 return KEY_UP;
         }
-        public void setKey_UP(int KEY_UP)
-        {
-                this.KEY_UP = KEY_UP;
-        }
 
-         public String getKey_LEFT()
+         public String getKeyLEFT()
         {
                 return KEY_LEFT;
         }
-        public void setKey_LEFT(int KEY_LEFT)
-        {
-                this.KEY_LEFT = KEY_LEFT;
-        }
 
-         public String getKey_RIGHT()
+         public String getKeyRIGHT()
         {
                 return KEY_RIGHT;
         }
-        public void setKey_RIGHT(int KEY_RIGHT)
-        {
-                this.KEY_RIGHT = KEY_RIGHT;
-        }
 
-    boolean levelCompleted = false;
 
-    BmpWrap background;
-    ArrayList<BmpWrap> bubbles;
-    Random random;
+    private boolean youWin = false;
 
-    LaunchBubbleSprite launchBubble;
-    double launchBubblePosition;
+    private final ArrayList<BmpWrap> bubbles;
+    private final Random rndm;
 
-    Compressor compressor;
 
-    ImageSprite nextBubble;
-    int currentColor, nextColor;
+    private LaunchBubbleSprite launchBubble;
+    private double launchBubblePosition;
 
-    BubbleSprite movingBubble;
-    BubbleManager bubbleManager;
-    LevelManager levelManager;
 
-    Vector jumping;
-    Vector falling;
+    private final Compressor compressor;
 
-    BubbleSprite[][] bubblePlay;
+    private ImageSprite nextBubble;
+    private int currentColor;
+    private int nextColor;
 
-    int fixedBubbles;
-    double moveDown;
+    private BubbleSprite movingBubble;
+    private final BubbleManager bubbleManager;
+    private final LevelManager levelManager;
 
-    int nbBubbles;
+    private Vector <Sprite> jumping;
+    private Vector <Sprite> falling;
+
+    private BubbleSprite[][] bPlay;
+
+    private int fixedBubbles;
+    private double mDown;
+
+    private int nbBubbles;
+
 
     ImageSprite hurrySprite;
+    ImageSprite overSprite;
+    ImageSprite winSprite;
+
     int hurryTime;
 
-    boolean readyToFire;
-    boolean endOfGame;
+    private ImageSprite runForrestRun;
+    private int limitTime;
 
-    Drawable launcher;
 
-    public FrozenGame(BmpWrap background_arg,
-                      ArrayList<BmpWrap> bubbles,
+    private boolean readyToFire;
+    private boolean gameOver;
+
+    public FrozenGame(ArrayList<BmpWrap> bubbles,
                       BmpWrap hurry_arg,
+                      BmpWrap over_arg,
+                      BmpWrap win_arg,
                       BmpWrap compressorHead_arg,
                       Drawable launcher_arg,
                       LevelManager levelManager_arg) {
-        random = new Random(System.currentTimeMillis());
-        this.launcher = launcher_arg;
-        this.background = background_arg;
+        rndm = new Random(System.currentTimeMillis());
+
         this.bubbles = bubbles;
         this.levelManager = levelManager_arg;
 
@@ -123,13 +113,17 @@ public class FrozenGame extends GameScreen {
 
         this.compressor = new Compressor(compressorHead_arg);
 
-        hurrySprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+        runForrestRun = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
                 hurry_arg);
+        overSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                over_arg);
+        winSprite = new ImageSprite(new Rect(203, 265, 203 + 240, 265 + 90),
+                win_arg);
 
-        jumping = new Vector();
-        falling = new Vector();
+        jumping = new Vector<>();
+        falling = new Vector<>();
 
-        bubblePlay = new BubbleSprite[8][13];
+        bPlay = new BubbleSprite[8][13];
 
         bubbleManager = new BubbleManager(bubbles);
         byte[][] currentLevel = levelManager.getCurrentLevel();
@@ -147,14 +141,14 @@ public class FrozenGame extends GameScreen {
                             bubbles.get(currentLevel[i][j]),
                             bubbleManager,
                             this);
-                    bubblePlay[i][j] = newOne;
+                    bPlay[i][j] = newOne;
                     this.addSprite(newOne);
                 }
             }
         }
 
-        currentColor = bubbleManager.nextBubbleIndex(random);
-        nextColor = bubbleManager.nextBubbleIndex(random);
+        currentColor = bubbleManager.nextBubbleIndex(rndm);
+        nextColor = bubbleManager.nextBubbleIndex(rndm);
 
         nextBubble = new ImageSprite(new Rect(302, 440, 302 + 32, 440 + 32),
                 bubbles.get(nextColor));
@@ -162,7 +156,7 @@ public class FrozenGame extends GameScreen {
 
         launchBubble = new LaunchBubbleSprite(currentColor,
                 (int) launchBubblePosition,
-                launcher, bubbles);
+                launcher_arg, bubbles);
 
         this.spriteToBack(launchBubble);
 
@@ -170,26 +164,27 @@ public class FrozenGame extends GameScreen {
     }
 
     public void saveState(Bundle map) {
-        ArrayList savedSprites = new ArrayList();
+        ArrayList<Sprite> savedSprites = new ArrayList<>();
         saveSprites(map, savedSprites);
         for (int i = 0; i < jumping.size(); i++) {
-            ((Sprite) jumping.elementAt(i)).saveState(map, savedSprites);
-            map.putInt(String.format("jumping-%d", i),
-                    ((Sprite) jumping.elementAt(i)).getSavedId());
+            jumping.elementAt(i).saveState(map, savedSprites);
+            String jumping = "jumping-%d";
+            map.putInt(String.format(jumping, i),
+                    this.jumping.elementAt(i).getSavedId());
         }
         map.putInt("numJumpingSprites", jumping.size());
         for (int i = 0; i < falling.size(); i++) {
-            ((Sprite) falling.elementAt(i)).saveState(map, savedSprites);
+            falling.elementAt(i).saveState(map, savedSprites);
             map.putInt(String.format("falling-%d", i),
-                    ((Sprite) falling.elementAt(i)).getSavedId());
+                    falling.elementAt(i).getSavedId());
         }
         map.putInt("numFallingSprites", falling.size());
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 13; j++) {
-                if (bubblePlay[i][j] != null) {
-                    bubblePlay[i][j].saveState(map, savedSprites);
+                if (bPlay[i][j] != null) {
+                    bPlay[i][j].saveState(map, savedSprites);
                     map.putInt(String.format("play-%d-%d", i, j),
-                            bubblePlay[i][j].getSavedId());
+                            bPlay[i][j].getSavedId());
                 } else {
                     map.putInt(String.format("play-%d-%d", i, j), -1);
                 }
@@ -211,18 +206,27 @@ public class FrozenGame extends GameScreen {
         }
         bubbleManager.saveState(map);
         map.putInt("fixedBubbles", fixedBubbles);
-        map.putDouble("moveDown", moveDown);
+        map.putDouble("mDown", mDown);
         map.putInt("nbBubbles", nbBubbles);
+
         hurrySprite.saveState(map, savedSprites);
         map.putInt("hurryId", hurrySprite.getSavedId());
+        overSprite.saveState(map, savedSprites);
+        winSprite.saveState(map, savedSprites);
+        map.putInt("overId", overSprite.getSavedId());
+        map.putInt("winId", winSprite.getSavedId());
         map.putInt("hurryTime", hurryTime);
+
+        runForrestRun.saveState(map, savedSprites);
+        map.putInt("hurryId", runForrestRun.getSavedId());
+        map.putInt("limitTime", limitTime);
         map.putBoolean("readyToFire", readyToFire);
-        map.putBoolean("endOfGame", endOfGame);
+        map.putBoolean("gameOver", gameOver);
 
         map.putInt("numSavedSprites", savedSprites.size());
 
         for (int i = 0; i < savedSprites.size(); i++) {
-            ((Sprite) savedSprites.get(i)).clearSavedId();
+            (savedSprites.get(i)).clearSavedId();
         }
     }
 
@@ -259,34 +263,34 @@ public class FrozenGame extends GameScreen {
         }
     }
 
+
     public void restoreState(Bundle map, Vector imageList) {
-        Vector savedSprites = new Vector();
+        Vector <Sprite> savedSprites = new Vector<>();
         int numSavedSprites = map.getInt("numSavedSprites");
-        for (int i = 0; i < numSavedSprites; i++) {
+        for (int i = 0; i < numSavedSprites; i++)
             savedSprites.addElement(restoreSprite(map, imageList, i));
-        }
 
         restoreSprites(map, savedSprites);
-        jumping = new Vector();
+        jumping = new Vector<>();
         int numJumpingSprites = map.getInt("numJumpingSprites");
         for (int i = 0; i < numJumpingSprites; i++) {
             int spriteIdx = map.getInt(String.format("jumping-%d", i));
             jumping.addElement(savedSprites.elementAt(spriteIdx));
         }
-        falling = new Vector();
+        falling = new Vector<>();
         int numFallingSprites = map.getInt("numFallingSprites");
         for (int i = 0; i < numFallingSprites; i++) {
             int spriteIdx = map.getInt(String.format("falling-%d", i));
             falling.addElement(savedSprites.elementAt(spriteIdx));
         }
-        bubblePlay = new BubbleSprite[8][13];
+        bPlay = new BubbleSprite[8][13];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 13; j++) {
                 int spriteIdx = map.getInt(String.format("play-%d-%d", i, j));
                 if (spriteIdx != -1) {
-                    bubblePlay[i][j] = (BubbleSprite) savedSprites.elementAt(spriteIdx);
+                    bPlay[i][j] = (BubbleSprite) savedSprites.elementAt(spriteIdx);
                 } else {
-                    bubblePlay[i][j] = null;
+                    bPlay[i][j] = null;
                 }
             }
         }
@@ -306,18 +310,27 @@ public class FrozenGame extends GameScreen {
         }
         bubbleManager.restoreState(map);
         fixedBubbles = map.getInt("fixedBubbles");
-        moveDown = map.getDouble("moveDown");
+        mDown = map.getDouble("mDown");
         nbBubbles = map.getInt("nbBubbles");
         int hurryId = map.getInt("hurryId");
+
         hurrySprite = (ImageSprite) savedSprites.elementAt(hurryId);
+        int overId = map.getInt("overId");
+        overSprite = (ImageSprite) savedSprites.elementAt(overId);
+        int winId = map.getInt("winId");
+        winSprite = (ImageSprite) savedSprites.elementAt(winId);
         hurryTime = map.getInt("hurryTime");
+
+        runForrestRun = (ImageSprite) savedSprites.elementAt(hurryId);
+        limitTime = map.getInt("limitTime");
+
         readyToFire = map.getBoolean("readyToFire");
-        endOfGame = map.getBoolean("endOfGame");
+        gameOver = map.getBoolean("gameOver");
     }
 
 
     public BubbleSprite[][] getGrid() {
-        return bubblePlay;
+        return bPlay;
     }
 
     public void addFallingBubble(BubbleSprite sprite) {
@@ -340,28 +353,28 @@ public class FrozenGame extends GameScreen {
         jumping.removeElement(sprite);
     }
 
-    public Random getRandom() {
-        return random;
+    public Random getRndm() {
+        return rndm;
     }
 
-    public double getMoveDown() {
-        return moveDown;
+    public double getmDown() {
+        return mDown;
     }
 
     private void sendBubblesDown() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 12; j++) {
-                if (bubblePlay[i][j] != null) {
-                    bubblePlay[i][j].moveDown();
+                if (bPlay[i][j] != null) {
+                    bPlay[i][j].moveDown();
 
-                    if (bubblePlay[i][j].getSpritePosition().y >= 380) {
-                        endOfGame = true;
+                    if (bPlay[i][j].getSpritePosition().y >= 380) {
+                        gameOver = true;
                     }
                 }
             }
         }
 
-        moveDown += 28.;
+        mDown += 28.;
         compressor.moveDown();
     }
 
@@ -386,15 +399,15 @@ public class FrozenGame extends GameScreen {
             readyToFire = true;
         }
 
-        if (endOfGame) {
+        if (gameOver) {
             if (move[FIRE] == KEY_UP && readyToFire) {
-                if (levelCompleted) {
+                if (youWin) {
                     levelManager.goToNextLevel();
                 }
                 return true;
             }
         } else {
-            if (move[FIRE] == KEY_UP || hurryTime > 480) {
+            if (move[FIRE] == KEY_UP || limitTime > 480) {
                 if (movingBubble == null && readyToFire) {
                     nbBubbles++;
 
@@ -406,14 +419,14 @@ public class FrozenGame extends GameScreen {
                     this.addSprite(movingBubble);
 
                     currentColor = nextColor;
-                    nextColor = bubbleManager.nextBubbleIndex(random);
+                    nextColor = bubbleManager.nextBubbleIndex(rndm);
 
                     nextBubble.changeImage(bubbles.get(nextColor));
                     launchBubble.changeColor(currentColor);
 
                     readyToFire = false;
-                    hurryTime = 0;
-                    removeSprite(hurrySprite);
+                    limitTime = 0;
+                    removeSprite(runForrestRun);
                 }
             } else {
                 double dx = 0;
@@ -441,10 +454,10 @@ public class FrozenGame extends GameScreen {
             if (movingBubble.fixed()) {
                 if (movingBubble.getSpritePosition().y >= 380 &&
                         !movingBubble.released()) {
-                    endOfGame = true;
+                    gameOver = true;
                 } else if (bubbleManager.countBubbles() == 0) {
-                    levelCompleted = true;
-                    endOfGame = true;
+                    youWin = true;
+                    gameOver = true;
                 } else {
                     fixedBubbles++;
                     if (fixedBubbles == 8) {
@@ -460,10 +473,10 @@ public class FrozenGame extends GameScreen {
                 if (movingBubble.fixed()) {
                     if (movingBubble.getSpritePosition().y >= 380 &&
                             !movingBubble.released()) {
-                        endOfGame = true;
+                        gameOver = true;
                     } else if (bubbleManager.countBubbles() == 0) {
-                        endOfGame = true;
-                        levelCompleted = true;
+                        gameOver = true;
+                        youWin = true;
                     } else {
                         fixedBubbles++;
                         if (fixedBubbles == 8) {
@@ -476,16 +489,28 @@ public class FrozenGame extends GameScreen {
             }
         }
 
-        if (movingBubble == null && !endOfGame) {
-            hurryTime++;
-            if (hurryTime == 2) {
-                removeSprite(hurrySprite);
+
+        if(gameOver && !youWin){
+            finDelJuego();
+        }
+
+        if(gameOver && youWin){
+            juegoGanado();
+        }
+
+   
+
+        if (movingBubble == null && !gameOver) {
+            limitTime++;
+            if (limitTime == 2) {
+                removeSprite(runForrestRun);
+
             }
-            if (hurryTime >= 240) {
-                if (hurryTime % 40 == 10) {
-                    addSprite(hurrySprite);
-                } else if (hurryTime % 40 == 35) {
-                    removeSprite(hurrySprite);
+            if (limitTime >= 240) {
+                if (limitTime % 40 == 10) {
+                    addSprite(runForrestRun);
+                } else if (limitTime % 40 == 35) {
+                    removeSprite(runForrestRun);
                 }
             }
         }
@@ -499,6 +524,24 @@ public class FrozenGame extends GameScreen {
         }
 
         return false;
+    }
+
+    public void finDelJuego(){
+        if (gameOver) {
+            addSprite(overSprite);
+        }
+        else{
+            removeSprite(overSprite);
+        }
+    }
+
+    public void juegoGanado(){
+        if (gameOver) {
+            addSprite(winSprite);
+        }
+        else{
+            removeSprite(winSprite);
+        }
     }
 
     public void paint(Canvas c, double scale, int dx, int dy) {
