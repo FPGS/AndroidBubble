@@ -72,7 +72,7 @@ public class FrozenBubble extends Activity {
             mGameThread.restoreState(savedInstanceState);
         }
         mGameView.requestFocus();
-        setFullscreen();
+        setFullscreen(mGameView);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class FrozenBubble extends Activity {
                 mGameThread = mGameView.getThread();
                 mGameThread.newGame();
                 mGameView.requestFocus();
-                setFullscreen();
+                setFullscreen(mGameView);
             }
         }
     }
