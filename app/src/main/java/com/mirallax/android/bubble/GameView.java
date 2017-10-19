@@ -30,19 +30,20 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     class GameThread extends Thread {
-    	//Disminucion del frame delay
-        private static final int FRAME_DELAY = 30;
 
-        private static final int STATE_RUNNING = 1;
-        private static final int STATE_PAUSE = 2;
+        private static final int FrameDelay = 30;
 
-        private static final int GAMEFIELD_WIDTH = 320;
-        private static final int GAMEFIELD_HEIGHT = 480;
-        private static final int EXTENDED_GAMEFIELD_WIDTH = 640;
+        public static final int StateRunning = 1;
+        public static final int StatePause = 2;
 
-        private static final double TRACKBALL_COEFFICIENT = 5;
-        private static final double TOUCH_COEFFICIENT = 0.2;
-        private static final double TOUCH_FIRE_Y_THRESHOLD = 350;
+        public static final int GamefieldWidth = 320;
+        public static final int GamefieldHeight = 480;
+        public static final int ExtendedGamefieldWidth = 640;
+
+
+        private static final double TrackballCoefficient = 5;
+        private static final double TouchCoefficient = 0.2;
+        private static final double TouchFireYThreshold = 350;
 
         private long lastTime;
         private int mode;
@@ -106,7 +107,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private GameThread(SurfaceHolder surfaceHolder, byte[] customLevels) {
             this.surfaceHolder = surfaceHolder;
             Resources res = mContext.getResources();
-            setState(STATE_PAUSE);
+            setState(StatePause);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -198,8 +199,8 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         void pause() {
             synchronized (surfaceHolder) {
-                if (mode == STATE_RUNNING) {
-                    setState(STATE_PAUSE);
+                if (mode == StateRunning) {
+                    setState(StatePause);
                 }
             }
         }
@@ -220,10 +221,14 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public void run() {
             while (run) {
                 long now = System.currentTimeMillis();
-                long delay = FRAME_DELAY + lastTime - now;
-                if (delay > 0) try {
-                    sleep(delay);
-                } catch (InterruptedException e) {
+
+                long delay = FrameDelay + lastTime - now;
+                if (delay > 0) {
+                    try {
+                        sleep(delay);
+                    } catch (InterruptedException e) {
+                    }
+
                 }
                 lastTime = now;
                 Canvas c = null;
@@ -233,7 +238,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         if (c != null) {
                             synchronized (surfaceHolder) {
                                 if (run) {
-                                    if (mode == STATE_RUNNING) {
+                                    if (mode == StateRunning) {
                                         updateGameState();
                                     }
                                     doDraw(c);
@@ -261,7 +266,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         synchronized void restoreState(Bundle map) {
             synchronized (surfaceHolder) {
-                setState(STATE_PAUSE);
+                setState(StatePause);
                 frozenGame.restoreState(map, imageList);
                 levelManager.restoreState(map);
             }
@@ -291,16 +296,16 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         private void setSurfaceSize(int width, int height) {
             synchronized (surfaceHolder) {
-                if (width / height >= GAMEFIELD_WIDTH / GAMEFIELD_HEIGHT) {
-                    displayScale = 1.0 * height / GAMEFIELD_HEIGHT;
+                if (width / height >= GamefieldWidth / GamefieldHeight) {
+                    displayScale = 1.0 * height / GamefieldHeight;
                     displayDX =
-                            (int) ((width - displayScale * EXTENDED_GAMEFIELD_WIDTH) / 2);
+                            (int) ((width - displayScale * ExtendedGamefieldWidth) / 2);
                     displayDY = 0;
                 } else {
-                    displayScale = 1.0 * width / GAMEFIELD_WIDTH;
+                    displayScale = 1.0 * width / GamefieldWidth;
                     displayDX = (int) (-displayScale *
-                            (EXTENDED_GAMEFIELD_WIDTH - GAMEFIELD_WIDTH) / 2);
-                    displayDY = (int) ((height - displayScale * GAMEFIELD_HEIGHT) / 2);
+                            (ExtendedGamefieldWidth - GamefieldWidth) / 2);
+                    displayDY = (int) ((height - displayScale * GamefieldHeight) / 2);
                 }
                 resizeBitmaps();
             }
@@ -308,11 +313,9 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         boolean doKeyDown(int keyCode, KeyEvent msg) {
             synchronized (surfaceHolder) {
-                if (mode != STATE_RUNNING) {
-                    setState(STATE_RUNNING);
-                }
+                stateRunning();
 
-                if (mode == STATE_RUNNING) {
+                if (mode == StateRunning) {
                     if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                         left = true;
                         wasLeft = true;
@@ -338,7 +341,7 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         boolean doKeyUp(int keyCode, KeyEvent msg) {
             synchronized (surfaceHolder) {
-                if (mode == STATE_RUNNING) {
+                if (mode == StateRunning) {
                     if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                         left = false;
                         return true;
@@ -359,17 +362,21 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         boolean doTrackballEvent(MotionEvent event) {
             synchronized (surfaceHolder) {
-                if (mode != STATE_RUNNING) {
-                    setState(STATE_RUNNING);
-                }
+                stateRunning();
 
-                if (mode == STATE_RUNNING) {
+                if (mode == StateRunning) {
                     if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                        trackballDX += event.getX() * TRACKBALL_COEFFICIENT;
+                        trackballDX += event.getX() * TrackballCoefficient;
                         return true;
                     }
                 }
                 return false;
+            }
+        }
+
+        private void stateRunning() {
+            if (mode != StateRunning) {
+                setState(StateRunning);
             }
         }
 
@@ -383,20 +390,18 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         boolean doTouchEvent(MotionEvent event) {
             synchronized (surfaceHolder) {
-                if (mode != STATE_RUNNING) {
-                    setState(STATE_RUNNING);
-                }
+                stateRunning();
 
                 double x = xFromScr(event.getX());
                 double y = yFromScr(event.getY());
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (y < TOUCH_FIRE_Y_THRESHOLD) {
+                    if (y < TouchFireYThreshold) {
                         touchFire = true;
                     }
                     touchLastX = x;
                 } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (y >= TOUCH_FIRE_Y_THRESHOLD) {
-                        touchDX = (x - touchLastX) * TOUCH_COEFFICIENT;
+                    if (y >= TouchFireYThreshold) {
+                        touchDX = (x - touchLastX) * TouchCoefficient;
                     }
                     touchLastX = x;
                 }
