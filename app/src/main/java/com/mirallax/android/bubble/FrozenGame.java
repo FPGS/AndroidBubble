@@ -26,6 +26,33 @@ public class FrozenGame extends GameScreen {
     private final static int KEY_LEFT = 37;
     private final static int KEY_RIGHT = 39;
 
+
+     public String getHorizontalMove()
+        {
+                return HORIZONTAL_MOVE;
+        }
+
+         public String getFire()
+        {
+                return FIRE;
+        }
+
+         public String getKeyUP()
+        {
+                return KEY_UP;
+        }
+
+         public String getKeyLEFT()
+        {
+                return KEY_LEFT;
+        }
+
+         public String getKeyRIGHT()
+        {
+                return KEY_RIGHT;
+        }
+
+
     private boolean youWin = false;
 
     private final ArrayList<BmpWrap> bubbles;
